@@ -15,7 +15,7 @@ namespace GlobalCode.Surfing.Console
             IoTSurfboard board = null;
             try
             {
-                board = new IoTSurfboard("COM5", 9600);
+                board = new IoTSurfboard("COM4", 9600);
                 while (true)
                 {
                     //System.Console.WriteLine("Alcohol      :" + board.Alcohol());
