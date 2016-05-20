@@ -21,10 +21,12 @@ namespace GlobalCode.Surfing.Win
         private const string ServerBroker = "iot.eclipse.org";
         private MqttClient _clientMqtt;
         private readonly string _clientId = $"Join2016_{Guid.NewGuid()}";
+        private Uri url;
 
         public DemoJoinCommunity2016()
         {
             InitializeComponent();
+            url = new Uri("http://prontuariobackend.azurewebsites.net/api/joincommunity");
         }
 
         private void btnConectar_Click(object sender, EventArgs e)
@@ -199,6 +201,7 @@ namespace GlobalCode.Surfing.Win
                 _clientMqtt.Publish("/joincommunity/temperatura", Encoding.UTF8.GetBytes(_board.Temperature().ToString()),
                     MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE, false);
                 lblTemp.Text = _board.Temperature().ToString();
+                publicarValorTemperatura(_board.Temperature());
 
                 // publish a message on "/joincommunity/potencia" topic with QoS 2 
                 _clientMqtt.Publish("/joincommunity/potencia", Encoding.UTF8.GetBytes(_board.Potentiometer().ToString()),
@@ -216,6 +219,33 @@ namespace GlobalCode.Surfing.Win
                 MessageBox.Show(ex.Message);
             }
         }
-        
+
+        private void publicarValorTemperatura(float temperatura)
+        {
+            try
+            {
+                StringBuilder jsonBuilder = new StringBuilder();
+
+                jsonBuilder.Append("{");
+                jsonBuilder.Append("'");
+                jsonBuilder.Append("Valor");
+                jsonBuilder.Append("'");
+                jsonBuilder.Append(":");
+                jsonBuilder.Append(temperatura);
+                jsonBuilder.Append("}");
+
+                string json = jsonBuilder.ToString();
+
+                using (var client = new WebClient())
+                {
+                    client.Headers[HttpRequestHeader.ContentType] = "application/json";
+                    client.UploadStringAsync(url, "POST", json);
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+        }
     }
 }
